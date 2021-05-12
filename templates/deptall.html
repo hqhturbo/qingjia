@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>deptall</title>
+    <link rel="stylesheet" href="../static/bootstrap.css">
+    <link rel="stylesheet" href="../static/bootstrap-theme.css">
+    <script src="../static/jquery-3.2.1.min.js"></script>
+    <script src="../static/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <h5>当前用户：<strong>{{ request.session.name }}</strong></h5>
+
+    {#    查询#}
+    <div>
+        员工姓名：<input type="text" placeholder="请输入姓名" id="n1">
+        请假状态：<input type="radio" name="jj" value="审核中" checked>审核中
+                <input type="radio" name="jj" value="已归档">已归档
+        <input type="checkbox" name="ay" value="全部">全部类型
+        <select name="" id="ayy">
+            {% for y in y_all %}
+                <option value="{{ y.id }}">{{ y.yname }}</option>
+            {% endfor %}
+        </select>
+        <a class="btn btn-primary" id="chaXun">查询</a>
+        <a href="/add/" class="btn btn-primary" disabled="disable">添加</a>
+        <a class="btn btn-primary" id="delall"disabled="disabled" >删除</a>
+    </div>
+    <tbody>
+    <table class="table table-bordered table-condensed table-striped table-hover" style="text-align: left">
+        <tr class="btn-default">
+            <td><input type="checkbox" id="select_all"disabled="disabled"></td>
+            <th>请假编号</th>
+            <th>请假人</th>
+            <th>请假标题</th>
+            <th>请假起始时间</th>
+            <th>请假结束时间</th>
+            <th>原因</th>
+            <th>部门</th>
+            <th>审批人</th>
+            <th>请假时间</th>
+            <th>审批时间</th>
+            <th>请假状态</th>
+            <th>是否同意</th>
+            <th>操作</th>
+        </tr>
+        <tbody id="s1">
+        {% for s in pp %}
+            <tr>
+                <td><input type="checkbox" class="select_option" name="mm"value="{{ s.0 }}"onclick="return false;"></td>
+                <td>{{ s.0 }}</td>
+                <td>{{ s.1 }}</td>
+                <td>{{ s.2 }}</td>
+                <td>{{ s.3| date:'Y-m-d' }}</td>
+                <td>{{ s.4| date:'Y-m-d' }}</td>
+                <td>{{ s.5 }}</td>
+                <td>{{ s.6 }}</td>
+                <td>{{ s.7 }}</td>
+                <td>{{ s.8| date:'Y-m-d' }}</td>
+                <td>{{ s.9 }}</td>
+                <td>{{ s.10 }}</td>
+                <td>{{ s.11|default_if_none:"" }}</td>
+                {% if  s.10 == "已归档" %}
+                    <td><a href="/dept_update1/?id={{ s.0 }}" class="btn btn-success">查看</a></td>
+                {% elif s.10 == "审核中" %}
+                    <td><a href="/dept_update/?id={{ s.0 }}" class="btn btn-success">审批</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{#    分页#}
+<nav class="nav nav-tabs nav-tabs-justified">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">显示第{{ s }}到第{{ e }}条数据，总共{{ p.count }}条数据，每页显示5条数据</div>
+        <div class="col-md-6 col-md-push-3">
+            {% if pp.has_previous %}
+                <a href="?page={{ pp.previous_page_number }}" class="btn btn-default">上一页</a>
+            {% endif %}
+            {% for f in pp.paginator.page_range %}
+                {% if f == page %}
+                    <a href="?page={{ f }}" class="btn btn-danger">{{ f }}</a>
+                {% else %}
+                    <a href="?page={{ f }}" class="btn btn-default">{{ f }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if pp.has_next %}
+                <a href="?page={{ pp.next_page_number }}" class="btn btn-default">下一页</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</nav>
+<script>
+    {#全选#}
+    $(function(){
+			$("#select_all").click(function(){
+				// 这里是判断全选按钮是否被选中
+			if($(this).is(":checked") == true){
+					// 选中class = select_option的标签
+					$(".select_option").each(function(){
+						// 通过prop()函数设置checkbox的状态
+						$(this).prop("checked",true);
+					})
+				}
+				else{
+					$(".select_option").each(function(){
+						$(this).prop("checked",false);
+					})
+				}
+			})
+		})
+
+    {#模糊查询#}
+    $(function () {
+        $('#chaXun').click(function () {
+            var n1 = $('#n1').val()
+            var zt = $("input[type='radio']:checked").val();
+            var ay = $("input[name='ay']:checked").val();
+            var ayy = $("#ayy").find("option:selected").text();
+            $.ajax({
+                url: '/select_dept_all/',
+                type: 'post',
+                traditional: true,
+                data: ({
+                    "n1": n1,
+                    "zt": zt,
+                    "ay": ay,
+                    'ayy': ayy,
+                }),
+                success: function (data) {
+                    $('#s1').empty();
+                    var html = '';
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].i10=='已归档'){
+                            html +=
+                            '<tr>' +
+                            '<td><input type="checkbox" class="dxk" name="mm" value="'+data[i].i0+'"onclick="return false;"></td>' +
+                            '<td>' + data[i].i0 + '</td>' +
+                            '<td>' + data[i].i1 + '</td>' +
+                            '<td>' + data[i].i2 + '</td>' +
+                            '<td>' + data[i].i3 + '</td>'+
+                            '<td>' + data[i].i4 + '</td>' +
+                            '<td>' + data[i].i5 + '</td>' +
+                            '<td>' + data[i].i6 + '</td>' +
+                            '<td>' + data[i].i7 + '</td>' +
+                            '<td>' + data[i].i8 + '</td>' +
+                            '<td>' + data[i].i9 + '</td>' +
+                            '<td>' + data[i].i10 +'</td>' +
+                            '<td>' + data[i].i11 + '</td>' +
+                            '<td><a href="/dept_update1/?id= '+data[i].i0 +'" class="btn btn-success">查看</a></td>'+
+                            '</tr>'
+                        }else {
+                            html +=
+                            '<tr>' +
+                            '<td><input type="checkbox" class="dxk" name="mm" value="'+data[i].i0+'"onclick="return false;"></td>' +
+                            '<td>' + data[i].i0 + '</td>' +
+                            '<td>' + data[i].i1 + '</td>' +
+                            '<td>' + data[i].i2 + '</td>' +
+                            '<td>' + data[i].i3 + '</td>'+
+                            '<td>' + data[i].i4 + '</td>' +
+                            '<td>' + data[i].i5 + '</td>' +
+                            '<td>' + data[i].i6 + '</td>' +
+                            '<td>' + data[i].i7 + '</td>' +
+                            '<td>' + data[i].i8 + '</td>' +
+                            '<td>' + data[i].i9 + '</td>' +
+                            '<td>' + data[i].i10 +'</td>' +
+                            '<td>' + data[i].i11 + '</td>' +
+                            '<td><a href="/dept_update/?id='+ data[i].i0 +'" class="btn btn-success">审批</a></td>' +                             '</tr>'
+                            '</tr>'
+                        }
+                    }
+                    console.log(html)
+                    $('#s1').html(html)
+                },
+                error: function () {
+                    alert('查询失败')
+                }
+            })
+
+        })
+    })
+
+    {#删除#}
+    $(function () {
+        $('#delall').click(function () {
+            var r=confirm("你确定要删除选中的请假信息吗？");
+            if (r==true){
+                alert('正在删除');
+                var vals = [];
+                $('input:checkbox:checked').each(function (index, item) {
+                vals.push($(this).val());
+                });
+                $.ajax({
+                    url:'/delall/',
+                    type:'post',
+                    traditional: true,
+                    data:{
+                        'lis':vals,
+                    },
+                    success:function () {
+                        location.reload()
+                    },
+                    error: function () {
+                            alert("删除失败");
+                    }
+                })
+            }
+            else{
+                alert('取消成功')
+            }
+        });
+    })
+
+</script>
+</body>
+</html>

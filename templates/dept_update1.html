@@ -1,0 +1,14 @@
+{% extends "update1.html" %}
+{% block js %}
+    $(function () {
+        $("#close,#colses").click(function () {
+            location.href = '/deptall/'
+        })
+    })
+    {#添加#}
+    $(function () {
+        $("#send").click(function () {
+            location.href = '/deptall/'
+        })
+    })
+{% endblock %}

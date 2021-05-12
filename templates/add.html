@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>add</title>
+    <link rel="stylesheet" href="../static/bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/bootstrap-theme.css">
+    <script src="../static/jquery-3.2.1.min.js"></script>
+    <script src="../static/bootstrap.js"></script>
+</head>
+<body>
+<form action=""method="post" class="container" style="width: 40%;border: 1px solid black">
+    <div class="col-md-offset-12"><a class="glyphicon glyphicon-remove" id="colses"></a></div>
+    <h2>请假申请</h2>
+    <hr>
+    <div class="form-group">
+        <strong>请假类型</strong>
+        <select name="yid" id=""class="form-control">
+            {% for y in y_all %}
+                <option value="{{ y.id }}">{{ y.yname }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <strong>起始时间</strong>
+        <input type="text"name="statime"class="form-control"value="2021-05-01"><span>{{ erro.statime.0 }}</span>
+    </div>
+    <div class="form-group">
+        <strong>结束时间</strong>
+        <input type="text"name="endtime"class="form-control"><span>{{ erro.endtime.0 }}</span>
+    </div>
+    <div class="form-group">
+        <strong>请假原因</strong><span>{{ erro.title.0 }}</span>
+        <textarea class="form-control" rows="5" name="title">
+        </textarea>
+    </div>
+    <div class="col-md-offset-9">
+        <a class="btn btn-default"id="close">关闭</a>
+        <button class="btn btn-primary">提交</button></div>
+</form>
+<script>
+    {#关闭#}
+    $(function () {
+        $("#close,#colses").click(function () {
+            location.href='/empall/'
+        })
+    })
+    {#添加#}
+    $(function () {
+        $("#send").click(function () {
+            location.href='/empall/'
+        })
+    })
+</script>
+</body>
+</html>
